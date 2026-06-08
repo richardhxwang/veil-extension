@@ -92,6 +92,17 @@ export default defineBackground(() => {
   chrome.runtime.onMessage.addListener((msg: VeilMessage, sender, sendResponse) => {
     const tabId = sender.tab?.id
 
+    // 打开 side panel（来自悬浮球点击）
+    if ((msg as { type: string }).type === '_OPEN_PANEL') {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+        if (tabs[0]?.id) {
+          (chrome as unknown as { sidePanel: { open(opts: { tabId: number }): Promise<void> } })
+            .sidePanel.open({ tabId: tabs[0].id }).catch(() => {})
+        }
+      })
+      return
+    }
+
     if (msg.type === 'GET_SCORE') {
       chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
         const activeTabId = tabs[0]?.id
