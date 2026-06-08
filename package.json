@@ -11,6 +11,7 @@
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare",
+    "fetch-db": "node scripts/fetch-disconnect-db.mjs",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest"
   },
