@@ -1,17 +1,7 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import '../../sidepanel/global.css'
+import App from '../../sidepanel/App'
 
-function App() {
-  return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Veil</h1>
-    </div>
-  )
-}
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+const root = document.getElementById('root')!
+createRoot(root).render(<App />)
