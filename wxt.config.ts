@@ -19,6 +19,6 @@ export default defineConfig({
     permissions: ['history', 'storage', 'sidePanel', 'webRequest', 'tabs', 'webNavigation'],
     host_permissions: ['<all_urls>'],
     side_panel: { default_path: 'sidepanel/index.html' },
-    action: {},
+    action: { default_popup: 'popup/index.html' },
   },
 })
