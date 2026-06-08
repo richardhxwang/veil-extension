@@ -5,16 +5,4 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
   },
-  esbuild: {
-    tsconfigRaw: {
-      compilerOptions: {
-        target: 'ESNext',
-        module: 'ESNext',
-        moduleResolution: 'bundler',
-        esModuleInterop: true,
-        strict: true,
-        skipLibCheck: true,
-      },
-    },
-  },
 })

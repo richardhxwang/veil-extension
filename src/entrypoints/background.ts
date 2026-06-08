@@ -19,9 +19,10 @@ export default defineBackground(() => {
     .then(raw => { db = buildTrackerDB(raw) })
     .catch(e => console.error('[Veil] Failed to load disconnect DB:', e))
 
-  // 监听网络请求，识别追踪器
-  chrome.webRequest.onBeforeRequest.addListener(
-    (details) => {
+  // 监听网络请求，识别追踪器（cast 绕过 @types/chrome 对非 blocking listener 的严格限制）
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(chrome.webRequest.onBeforeRequest as any).addListener(
+    (details: chrome.webRequest.WebRequestDetails) => {
       if (details.tabId < 0) return
       const match = matchTracker(details.url, db)
       if (!match) return
@@ -33,7 +34,6 @@ export default defineBackground(() => {
       const trackers = tabTrackers.get(tabId)!
       if (!trackers.has(match.company)) {
         trackers.set(match.company, match)
-        // 通知侧边栏（fire and forget）
         broadcastScore(tabId)
       }
     },
