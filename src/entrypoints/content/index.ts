@@ -39,25 +39,26 @@ export default defineContentScript({
     }
 
     // 监听 background/sidepanel 消息
+    // 只对需要 sendResponse 的两种消息返回 true（async channel），其余返回 undefined
     chrome.runtime.onMessage.addListener((msg: VeilMessage, _sender, sendResponse) => {
       switch (msg.type) {
         case 'SCORE_UPDATE':
           updateBallScore(msg.data.total)
-          break
+          return
 
         case 'SCAN_DARK_PATTERNS':
           cachedDarkPatterns = scanDarkPatterns()
           sendResponse({ patterns: cachedDarkPatterns })
-          break
+          return true
 
         case 'SCAN_HIDDEN_ELEMENTS':
           cachedHiddenElements = scanHiddenElements()
           sendResponse({ elements: cachedHiddenElements })
-          break
+          return true
 
         case 'TOGGLE_HIGHLIGHT':
           setHighlight(msg.enabled, cachedDarkPatterns)
-          break
+          return
 
         case 'TOGGLE_XRAY':
           if (msg.enabled) {
@@ -65,17 +66,16 @@ export default defineContentScript({
           } else {
             removeXRayOverlay()
           }
-          break
+          return
 
         case 'LOCATE_ELEMENT': {
           try {
             const el = document.querySelector(msg.selector)
             el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           } catch { /* ignore */ }
-          break
+          return
         }
       }
-      return true // keep channel open for async
     })
   },
 })

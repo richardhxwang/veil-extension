@@ -31,17 +31,22 @@ export default function TrackerMap({ score, onBack }: Props) {
       }
     })
 
-    // 监听 background 推送的追踪器更新
+    // 主动请求追踪器列表（background 持有 per-tab 状态）
+    chrome.runtime.sendMessage(
+      { type: 'GET_TRACKERS' },
+      (res: { type: string; trackers: TrackerInfo[] } | undefined) => {
+        if (chrome.runtime.lastError || !res) return
+        setTrackers(res.trackers ?? [])
+      }
+    )
+
+    // 也监听实时推送（新追踪器出现时 background 广播 SCORE_UPDATE，用 score prop 更新已在 App 层处理）
     const listener = (msg: { type: string; trackers?: TrackerInfo[] }) => {
       if (msg.type === 'TRACKERS_UPDATE' && msg.trackers) {
         setTrackers(msg.trackers)
       }
     }
     chrome.runtime.onMessage.addListener(listener)
-
-    // 主动请求当前评分（background 持有追踪器数据）
-    chrome.runtime.sendMessage({ type: 'GET_SCORE' })
-
     return () => chrome.runtime.onMessage.removeListener(listener)
   }, [])
 

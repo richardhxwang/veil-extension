@@ -23,26 +23,38 @@ const SHAME_PHRASES_ZH = [
 // 取消/退订相关词
 const CANCEL_KEYWORDS = /cancel|unsubscribe|退订|取消订阅|不续费/i
 
+// CSS.escape polyfill for jsdom test environments
+function cssEscape(s: string): string {
+  if (typeof CSS !== 'undefined' && CSS.escape) return CSS.escape(s)
+  return s.replace(/([^\w-])/g, '\\$1')
+}
+
+// 构建稳定的 CSS 选择器（用于 locateElement）
+function buildSelector(el: Element): string {
+  if (el.id) return `#${cssEscape(el.id)}`
+  const tag = el.tagName.toLowerCase()
+  const cls = Array.from(el.classList).slice(0, 2).map(c => `.${cssEscape(c)}`).join('')
+  return cls ? `${tag}${cls}` : tag
+}
+
 export function detectPreCheckedBoxes(doc: Document): DarkPattern[] {
   const results: DarkPattern[] = []
   const checkboxes = doc.querySelectorAll<HTMLInputElement>('input[type="checkbox"][checked]')
 
   for (const cb of checkboxes) {
-    // 查找关联 label
     let labelText = ''
     const id = cb.id
     if (id) {
       const label = doc.querySelector(`label[for="${id}"]`)
       if (label) labelText = label.textContent || ''
     }
-    // 也检查父元素附近的文字
     const parentText = cb.parentElement?.textContent || ''
     const combinedText = labelText + parentText
 
     if (MONEY_KEYWORDS.test(combinedText)) {
       results.push({
         type: '预勾选订阅',
-        element: cb.outerHTML.slice(0, 100),
+        element: buildSelector(cb),
         description: `预先勾选的订阅/付费选项：${combinedText.trim().slice(0, 60)}`,
       })
     }
@@ -65,7 +77,7 @@ export function detectShamePatterns(doc: Document): DarkPattern[] {
     if (isShame) {
       results.push({
         type: '羞辱式按钮',
-        element: el.tagName.toLowerCase(),
+        element: buildSelector(el),
         description: `羞辱式拒绝选项：${text.slice(0, 80)}`,
       })
     }
@@ -82,7 +94,7 @@ export function detectCountdowns(doc: Document): DarkPattern[] {
   for (const el of els) {
     results.push({
       type: '虚假倒计时',
-      element: el.tagName.toLowerCase(),
+      element: buildSelector(el),
       description: `倒计时元素可能制造虚假紧迫感：${(el.textContent || '').trim().slice(0, 60)}`,
     })
   }
@@ -99,9 +111,9 @@ export function detectHiddenCancel(doc: Document): DarkPattern[] {
 
     const style = el.getAttribute('style') || ''
     const isHidden =
-      /opacity\s*:\s*0\.[0-2]/i.test(style) ||      // opacity < 0.3
-      /font-size\s*:\s*[0-9]px/i.test(style) ||      // tiny font (single digit px)
-      /color\s*:\s*#[fF]{6}/i.test(style) ||          // white text (#ffffff)
+      /opacity\s*:\s*0\.[0-2]/i.test(style) ||
+      /font-size\s*:\s*[0-9]px(?!\d)/i.test(style) ||  // tiny font (1–9px, no false-positive on 19px)
+      /color\s*:\s*#[fF]{6}/i.test(style) ||
       /color\s*:\s*white/i.test(style) ||
       /display\s*:\s*none/i.test(style) ||
       /visibility\s*:\s*hidden/i.test(style)
@@ -109,7 +121,7 @@ export function detectHiddenCancel(doc: Document): DarkPattern[] {
     if (isHidden) {
       results.push({
         type: '隐藏取消选项',
-        element: el.tagName.toLowerCase(),
+        element: buildSelector(el),
         description: `取消/退订链接被刻意隐藏：${text.slice(0, 60)}`,
       })
     }

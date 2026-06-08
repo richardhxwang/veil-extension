@@ -91,7 +91,7 @@ export default function DarkPatterns({ score, onBack }: Props) {
             <Card
               key={i}
               className="cursor-pointer hover:bg-accent/50 transition-colors"
-              onClick={() => locateElement(p.element)}
+              onClick={() => locateElement(p.element)}  // p.element is a CSS selector
             >
               <CardContent className="p-3 flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">

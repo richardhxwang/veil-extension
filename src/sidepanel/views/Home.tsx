@@ -42,7 +42,7 @@ export default function Home({ score, onNavigate }: Props) {
       icon: '🌌',
       label: '我的轨迹',
       value: score.visitCount,
-      unit: `第 ${score.visitCount} 次`,
+      unit: '次访问',
       view: 'galaxy' as ViewName,
       progress: Math.min(100, score.visitCount * 10),
     },

@@ -44,5 +44,7 @@ export type VeilMessage =
   | { type: 'LOCATE_ELEMENT'; selector: string }
   | { type: 'SCAN_DARK_PATTERNS' }
   | { type: 'SCAN_HIDDEN_ELEMENTS' }
+  | { type: 'GET_TRACKERS' }
+  | { type: 'TRACKERS_RESPONSE'; trackers: TrackerInfo[] }
 
 export type ViewName = 'home' | 'darkpatterns' | 'trackers' | 'xray' | 'galaxy'

@@ -123,6 +123,17 @@ export default defineBackground(() => {
       return true // async response
     }
 
+    if (msg.type === 'GET_TRACKERS') {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+        const activeTabId = tabs[0]?.id
+        const trackers: TrackerInfo[] = activeTabId
+          ? [...(tabTrackers.get(activeTabId)?.values() ?? [])]
+          : []
+        sendResponse({ type: 'TRACKERS_RESPONSE', trackers })
+      })
+      return true // async response
+    }
+
     if (msg.type === 'DARK_PATTERNS_RESULT' && tabId != null) {
       tabDarkPatternCount.set(tabId, msg.patterns.length)
       broadcastScore(tabId)
