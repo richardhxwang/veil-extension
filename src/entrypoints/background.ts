@@ -4,6 +4,9 @@ import { calculateScore } from '../lib/scoring'
 import type { TrackerInfo, VeilMessage, ScoreData } from '../lib/types'
 
 export default defineBackground(() => {
+  // 点击扩展图标时打开侧边栏
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {})
+
   // 状态：每个 tab 的追踪器集合（company 去重）
   const tabTrackers = new Map<number, Map<string, TrackerInfo>>()
   // 状态：每个 tab 的暗模式/隐藏元素计数
