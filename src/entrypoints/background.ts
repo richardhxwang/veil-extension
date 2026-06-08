@@ -4,8 +4,13 @@ import { calculateScore } from '../lib/scoring'
 import type { TrackerInfo, VeilMessage, ScoreData } from '../lib/types'
 
 export default defineBackground(() => {
-  // 点击扩展图标时打开侧边栏
+  // 点击扩展图标时打开侧边栏（双保险）
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {})
+  chrome.action.onClicked.addListener((tab) => {
+    if (tab.id) {
+      chrome.sidePanel.open({ tabId: tab.id }).catch(() => {})
+    }
+  })
 
   // 状态：每个 tab 的追踪器集合（company 去重）
   const tabTrackers = new Map<number, Map<string, TrackerInfo>>()
