@@ -1,38 +1,40 @@
 export interface DarkPattern {
-  type: string           // '虚假倒计时' | '预勾选订阅' | '羞辱式按钮' | '隐藏取消按钮'
-  element: string        // CSS 选择器（用于定位）
-  description: string    // 给用户看的解释
+  type: string
+  element: string        // CSS 选择器
+  description: string
 }
 
 export interface TrackerInfo {
   company: string
-  category: string       // 'Advertising' | 'Analytics' | 'Social' | 'Content'
+  category: string
   domain: string
 }
 
 export interface HiddenElement {
   selector: string
-  reason: string         // 'display:none' | 'visibility:hidden' | 'opacity:0' | 'off-screen'
-  contentPreview: string // 前 60 个字符
+  reason: string         // 'hidden-input' | 'hidden-terms' | 'tracking-pixel'
+  contentPreview: string
   tagName: string
+  fieldName?: string     // for hidden inputs
+  fieldValue?: string    // for hidden inputs
+  riskLevel?: 'high' | 'medium'
 }
 
 export interface ScoreInput {
   darkPatternCount: number
   trackerCount: number
   hiddenElementCount: number
-  visitCount: number     // chrome.history 返回的访问次数
+  visitCount: number
 }
 
 export interface ScoreData {
-  total: number          // 0-100
+  total: number
   darkPatternCount: number
   trackerCount: number
   hiddenElementCount: number
   visitCount: number
 }
 
-// 消息类型（Background ↔ Content ↔ SidePanel）
 export type VeilMessage =
   | { type: 'GET_SCORE' }
   | { type: 'SCORE_UPDATE'; data: ScoreData }
