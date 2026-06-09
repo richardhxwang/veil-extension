@@ -16,7 +16,7 @@ export default defineConfig({
   manifest: {
     name: 'Veil',
     description: '揭开网页面纱 — 暗模式、追踪器、隐藏元素、浏览轨迹',
-    permissions: ['history', 'storage', 'sidePanel', 'webRequest', 'tabs', 'webNavigation'],
+    permissions: ['history', 'storage', 'sidePanel', 'webRequest', 'tabs', 'webNavigation', 'contextMenus'],
     host_permissions: ['<all_urls>'],
     side_panel: { default_path: 'sidepanel/index.html' },
     icons: {

@@ -14,29 +14,47 @@ export function injectFloatingBall(): void {
   const shadow = shadowHost.attachShadow({ mode: 'open' })
   shadow.innerHTML = `
     <style>
+      .wrap { position: relative; }
       .ball {
-        width: 40px; height: 40px;
+        width: 44px; height: 44px;
         border-radius: 50%;
         background: #22c55e;
         display: flex; align-items: center; justify-content: center;
-        color: #fff; font: bold 14px/1 system-ui;
+        color: #fff; font: bold 13px/1 system-ui;
         box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         transition: background 0.3s, transform 0.1s;
-        user-select: none;
+        user-select: none; cursor: pointer;
       }
-      .ball:hover { transform: scale(1.1); }
+      .ball:hover { transform: scale(1.08); }
       .ball:active { transform: scale(0.95); }
+      .tip {
+        position: absolute; bottom: 52px; right: 0;
+        background: #1e1e2e; color: #fff;
+        font: 12px/1.4 system-ui; white-space: nowrap;
+        padding: 7px 10px; border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        opacity: 0; transition: opacity 0.2s; pointer-events: none;
+      }
+      .tip::after {
+        content:''; position:absolute; bottom:-6px; right:14px;
+        border:6px solid transparent; border-top-color:#1e1e2e; border-bottom:none;
+      }
     </style>
-    <div class="ball" id="ball">100</div>
+    <div class="wrap">
+      <div class="ball" id="ball">100</div>
+      <div class="tip" id="tip">点击右上角 <b>V</b> 图标打开面板<br>或右键网页选「Open Veil」</div>
+    </div>
   `
 
   scoreEl = shadow.getElementById('ball')
 
-  // 点击打开 side panel
+  // 点击显示提示（Chrome 限制：side panel 只能通过扩展图标或右键菜单打开）
   shadow.getElementById('ball')?.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ type: 'GET_SCORE' })
-    // 在 MV3 中通过 chrome.sidePanel.open 打开（background 处理）
-    chrome.runtime.sendMessage({ type: '_OPEN_PANEL' })
+    const tip = shadow.getElementById('tip')
+    if (tip) {
+      tip.style.opacity = '1'
+      setTimeout(() => { tip.style.opacity = '0' }, 3000)
+    }
   })
 
   document.body.appendChild(shadowHost)

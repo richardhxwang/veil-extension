@@ -4,7 +4,16 @@ import { calculateScore } from '../lib/scoring'
 import type { TrackerInfo, VeilMessage, ScoreData } from '../lib/types'
 
 export default defineBackground(() => {
-  // 点击图标通过 popup 打开侧边栏（popup/index.html 直接调用 sidePanel.open）
+  // 右键菜单打开侧边栏（右键菜单是合法用户手势，可以调用 sidePanel.open）
+  chrome.contextMenus.create({
+    id: 'open-veil',
+    title: 'Open Veil 隐私面板',
+    contexts: ['all'],
+  })
+  chrome.contextMenus.onClicked.addListener((_, tab) => {
+    if (tab?.id) chrome.sidePanel.open({ tabId: tab.id }).catch(() => {})
+  })
+
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {})
 
   // 状态：每个 tab 的追踪器集合（company 去重）
