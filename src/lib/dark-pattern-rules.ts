@@ -85,6 +85,9 @@ export function detectShamePatterns(doc: Document): DarkPattern[] {
   return results
 }
 
+// 促销/紧迫感关键词——只有倒计时与这些词同时出现才标记
+const URGENCY_KEYWORDS = /限时|限量|秒杀|抢购|剩余|即将结束|优惠结束|sale ends|limited time|hurry|ends in|only \d+ left|flash sale|deal ends/i
+
 export function detectCountdowns(doc: Document): DarkPattern[] {
   const results: DarkPattern[] = []
   const els = doc.querySelectorAll<HTMLElement>(
@@ -92,10 +95,19 @@ export function detectCountdowns(doc: Document): DarkPattern[] {
   )
 
   for (const el of els) {
+    // 取倒计时元素本身 + 其父级的文本（2 层），判断是否同时有促销词
+    const contextText = [
+      el.textContent || '',
+      el.parentElement?.textContent || '',
+      el.parentElement?.parentElement?.textContent || '',
+    ].join(' ')
+
+    if (!URGENCY_KEYWORDS.test(contextText)) continue  // 没有促销词 → 跳过（可能是真实倒计时）
+
     results.push({
-      type: '虚假倒计时',
+      type: '可疑倒计时',
       element: buildSelector(el),
-      description: `倒计时元素可能制造虚假紧迫感：${(el.textContent || '').trim().slice(0, 60)}`,
+      description: `倒计时出现在促销语境中，可能制造虚假紧迫感（无法确认是否刷新重置）：${(el.textContent || '').trim().slice(0, 50)}`,
     })
   }
   return results

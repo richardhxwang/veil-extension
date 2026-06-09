@@ -6,7 +6,7 @@ interface Props { score: ScoreData; onBack: () => void }
 const TYPE_META: Record<string, { color: string; bg: string; explain: string }> = {
   '预勾选订阅': { color: '#FF9500', bg: '#FFF3E0', explain: '已替你勾选付费/订阅选项，容易被忽视' },
   '羞辱式按钮': { color: '#AF52DE', bg: '#F3E8FF', explain: '把「不买」说成「我就是喜欢浪费钱」' },
-  '虚假倒计时': { color: '#FF3B30', bg: '#FFE8E8', explain: '制造紧迫感的假计时器，刷新就重置' },
+  '可疑倒计时': { color: '#FF3B30', bg: '#FFE8E8', explain: '促销语境下的倒计时，可能是制造焦虑的假限时。刷新页面后若数字重置则基本确认是假的。' },
   '隐藏取消选项': { color: '#FF9500', bg: '#FFF3E0', explain: '退订/取消链接被故意设成细字或白色' },
 }
 
