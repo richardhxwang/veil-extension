@@ -1,28 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 
 function Popup() {
-  const [status, setStatus] = useState('⏳ 运行中…')
-
   useEffect(() => {
-    setStatus('✅ popup 已加载')
     chrome.tabs.query({ active: true, currentWindow: true }).then(async (tabs) => {
       const tabId = tabs[0]?.id
-      setStatus(`✅ tabId = ${tabId}`)
-      if (!tabId) { setStatus('❌ 没拿到 tabId'); return }
+      if (!tabId) return
       try {
         await chrome.sidePanel.open({ tabId })
-        setStatus('✅ sidePanel.open 成功，请看右侧')
-      } catch (e: unknown) {
-        setStatus(`❌ ${e instanceof Error ? e.message : String(e)}`)
-      }
+      } catch { /* ignore */ }
+      window.close()
     })
   }, [])
 
   return (
-    <div style={{ padding: 12, fontFamily: 'sans-serif', fontSize: 12, width: 220, lineHeight: 1.6 }}>
-      <b>Veil 调试</b><br />
-      {status}
+    <div style={{ width: 180, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '-apple-system, sans-serif', fontSize: 13, color: '#8E8E93' }}>
+      正在打开 Veil…
     </div>
   )
 }

@@ -1,7 +1,13 @@
 // scripts/fetch-disconnect-db.mjs
 // 从 GitHub 下载 Disconnect tracker list 并展平为 {domain → {company, category}} 格式
 
-import { writeFileSync, mkdirSync } from 'fs'
+import { writeFileSync, mkdirSync, existsSync } from 'fs'
+
+const OUT = 'public/disconnect-db.json'
+if (existsSync(OUT)) {
+  console.log('disconnect-db.json already exists, skipping fetch.')
+  process.exit(0)
+}
 
 const URL = 'https://raw.githubusercontent.com/disconnectme/disconnect-tracking-protection/master/services.json'
 
