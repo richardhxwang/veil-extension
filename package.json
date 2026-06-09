@@ -1,6 +1,6 @@
 {
   "name": "veil-extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Veil Chrome Extension - 揭开网页面纱",
   "private": true,
   "scripts": {

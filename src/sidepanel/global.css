@@ -17,9 +17,13 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  body {
+  html {
+    color-scheme: light;
     background: #F2F2F7;
-    color: #000;
+  }
+  body {
+    background: #F2F2F7 !important;
+    color: #000 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
     -webkit-font-smoothing: antialiased;
     margin: 0;

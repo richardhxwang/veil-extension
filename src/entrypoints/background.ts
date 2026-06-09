@@ -11,7 +11,7 @@ export default defineBackground(() => {
     contexts: ['all'],
   })
   chrome.contextMenus.onClicked.addListener((_, tab) => {
-    if (tab?.id) chrome.sidePanel.open({ tabId: tab.id }).catch(() => {})
+    if (tab?.id) chrome.sidePanel.open({ tabId: tab.id }).catch(() => { /* restricted page */ })
   })
 
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {})
@@ -97,7 +97,7 @@ export default defineBackground(() => {
     }
 
     const msg: VeilMessage = { type: 'SCORE_UPDATE', data: scoreData }
-    chrome.runtime.sendMessage(msg).catch(() => {/* side panel closed */})
+    chrome.runtime.sendMessage(msg).catch(() => { /* side panel not open */ })
   }
 
   // 响应消息
@@ -106,43 +106,49 @@ export default defineBackground(() => {
 
     // 打开 side panel（来自悬浮球点击）
     if ((msg as { type: string }).type === '_OPEN_PANEL') {
-      chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+      chrome.tabs.query({ active: true, currentWindow: true })
+      .then(tabs => {
         if (tabs[0]?.id) {
           (chrome as unknown as { sidePanel: { open(opts: { tabId: number }): Promise<void> } })
             .sidePanel.open({ tabId: tabs[0].id }).catch(() => {})
         }
       })
+      .catch(() => {})
       return
     }
 
     if (msg.type === 'GET_SCORE') {
-      chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
-        const activeTabId = tabs[0]?.id
-        if (activeTabId == null) {
-          sendResponse({ type: 'SCORE_UPDATE', data: { total: 100, darkPatternCount: 0, trackerCount: 0, hiddenElementCount: 0, visitCount: 0 } })
-          return
-        }
-        const trackerCount = tabTrackers.get(activeTabId)?.size ?? 0
-        const darkPatternCount = tabDarkPatternCount.get(activeTabId) ?? 0
-        const hiddenElementCount = tabHiddenElementCount.get(activeTabId) ?? 0
-        const visitCount = tabVisitCount.get(activeTabId) ?? 0
-        const scoreData: ScoreData = {
-          total: calculateScore({ darkPatternCount, trackerCount, hiddenElementCount, visitCount }),
-          darkPatternCount, trackerCount, hiddenElementCount, visitCount,
-        }
-        sendResponse({ type: 'SCORE_UPDATE', data: scoreData })
-      })
+      chrome.tabs.query({ active: true, currentWindow: true })
+        .then(tabs => {
+          const activeTabId = tabs[0]?.id
+          if (activeTabId == null) {
+            sendResponse({ type: 'SCORE_UPDATE', data: { total: 100, darkPatternCount: 0, trackerCount: 0, hiddenElementCount: 0, visitCount: 0 } })
+            return
+          }
+          const trackerCount = tabTrackers.get(activeTabId)?.size ?? 0
+          const darkPatternCount = tabDarkPatternCount.get(activeTabId) ?? 0
+          const hiddenElementCount = tabHiddenElementCount.get(activeTabId) ?? 0
+          const visitCount = tabVisitCount.get(activeTabId) ?? 0
+          const scoreData: ScoreData = {
+            total: calculateScore({ darkPatternCount, trackerCount, hiddenElementCount, visitCount }),
+            darkPatternCount, trackerCount, hiddenElementCount, visitCount,
+          }
+          sendResponse({ type: 'SCORE_UPDATE', data: scoreData })
+        })
+        .catch(() => sendResponse({ type: 'SCORE_UPDATE', data: { total: 100, darkPatternCount: 0, trackerCount: 0, hiddenElementCount: 0, visitCount: 0 } }))
       return true // async response
     }
 
     if (msg.type === 'GET_TRACKERS') {
-      chrome.tabs.query({ active: true, currentWindow: true }).then(tabs => {
-        const activeTabId = tabs[0]?.id
-        const trackers: TrackerInfo[] = activeTabId
-          ? [...(tabTrackers.get(activeTabId)?.values() ?? [])]
-          : []
-        sendResponse({ type: 'TRACKERS_RESPONSE', trackers })
-      })
+      chrome.tabs.query({ active: true, currentWindow: true })
+        .then(tabs => {
+          const activeTabId = tabs[0]?.id
+          const trackers: TrackerInfo[] = activeTabId
+            ? [...(tabTrackers.get(activeTabId)?.values() ?? [])]
+            : []
+          sendResponse({ type: 'TRACKERS_RESPONSE', trackers })
+        })
+        .catch(() => sendResponse({ type: 'TRACKERS_RESPONSE', trackers: [] }))
       return true // async response
     }
 
